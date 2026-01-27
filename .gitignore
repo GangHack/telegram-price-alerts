@@ -15,6 +15,10 @@ token.json
 # --- Database ---
 data/*.db
 
+# --- Logs ---
+logs/
+*.log
+
 # --- Python ---
 __pycache__/
 *.py[cod]

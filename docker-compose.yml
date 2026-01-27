@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  price-monitor:
+    build: .
+    container_name: competitor-price-monitor
+    restart: unless-stopped
+
+    # Environment variables from .env file
+    env_file:
+      - .env
+
+    # Mount volumes for persistent data
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./config:/app/config
+
+    # Run in daemon mode (continuous monitoring)
+    command: python -m execution.scheduler --daemon --interval 2
+
+    # Optional: Set memory and CPU limits
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+    # Network mode
+    network_mode: bridge
+
+    # Health check
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import sys; sys.exit(0)'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Optional: Run once mode (for testing)
+  price-monitor-once:
+    build: .
+    container_name: price-monitor-once
+    profiles:
+      - test
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./config:/app/config
+    command: python -m execution.scheduler --once

@@ -23,6 +23,10 @@ from config.settings import (
 from execution.scraper import PriceScraper
 from execution.storage import init_database, save_price, detect_price_change
 from execution.telegram import TelegramBot
+from execution.logger import setup_logger
+
+# Initialize logger
+logger = setup_logger()
 
 
 def run_scrape_cycle() -> dict:
@@ -32,9 +36,7 @@ def run_scrape_cycle() -> dict:
     Returns:
         Summary dictionary with counts and changes
     """
-    print(f"\n{'='*60}")
-    print(f"Starting scrape cycle at {datetime.now().isoformat()}")
-    print('='*60)
+    logger.info(f"Starting scrape cycle at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
     # Initialize
     init_database()
@@ -95,9 +97,9 @@ def run_scrape_cycle() -> dict:
                 for change in changes:
                     bot.send_price_alert(change)
                     alerts_sent += 1
-            print(f"\nSent {alerts_sent} alert(s) for {len(changes)} price change(s)")
+            logger.info(f"Sent {alerts_sent} alert(s) for {len(changes)} price change(s)")
         except Exception as e:
-            print(f"\nFailed to send alerts: {e}")
+            logger.error(f"Failed to send alerts: {e}")
 
     # Summary
     summary = {
@@ -109,12 +111,7 @@ def run_scrape_cycle() -> dict:
         "alerts_sent": alerts_sent
     }
 
-    print(f"\n{'-'*60}")
-    print(f"Cycle complete:")
-    print(f"  Scraped: {success_count}/{len(results)} products")
-    print(f"  Changes detected: {len(changes)}")
-    print(f"  Alerts sent: {alerts_sent}")
-    print('-'*60)
+    logger.info(f"Cycle complete: Scraped {success_count}/{len(results)} products, {len(changes)} changes detected, {alerts_sent} alerts sent")
 
     return summary
 
@@ -129,8 +126,8 @@ def run_daemon(interval_hours: float = None):
     interval = interval_hours or SCRAPE_INTERVAL_HOURS
     interval_seconds = interval * 3600
 
-    print(f"Starting daemon mode (interval: {interval} hours)")
-    print("Press Ctrl+C to stop\n")
+    logger.info(f"Starting daemon mode (interval: {interval} hours)")
+    logger.info("Press Ctrl+C to stop")
 
     try:
         while True:
@@ -138,12 +135,12 @@ def run_daemon(interval_hours: float = None):
 
             next_run = datetime.now().timestamp() + interval_seconds
             next_run_str = datetime.fromtimestamp(next_run).strftime("%Y-%m-%d %H:%M:%S")
-            print(f"\nNext run at: {next_run_str}")
+            logger.info(f"Next run at: {next_run_str}")
 
             time.sleep(interval_seconds)
 
     except KeyboardInterrupt:
-        print("\n\nDaemon stopped by user")
+        logger.info("Daemon stopped by user")
 
 
 def main():

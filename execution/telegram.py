@@ -15,6 +15,9 @@ import httpx
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from config.settings import TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
+from execution.logger import get_logger
+
+logger = get_logger()
 
 
 class TelegramBot:
@@ -147,15 +150,15 @@ def main():
             bot = TelegramBot()
             result = bot.send_message(args.test)
             if result.get("ok"):
-                print("Message sent successfully!")
+                logger.info("Message sent successfully!")
             else:
-                print(f"Failed: {result}")
+                logger.error(f"Failed: {result}")
             return 0
         except ValueError as e:
-            print(f"Configuration error: {e}", file=sys.stderr)
+            logger.error(f"Configuration error: {e}")
             return 1
         except httpx.HTTPError as e:
-            print(f"HTTP error: {e}", file=sys.stderr)
+            logger.error(f"HTTP error: {e}")
             return 1
 
     parser.print_help()

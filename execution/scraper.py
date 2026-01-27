@@ -26,6 +26,9 @@ from config.settings import (
     PROXY_URL,
     load_competitors_config
 )
+from execution.logger import get_logger
+
+logger = get_logger()
 
 
 def random_delay(min_sec: float = 2, max_sec: float = 5):
@@ -194,7 +197,7 @@ class PriceScraper:
         base_url = competitor_config["base_url"]
         products = competitor_config.get("products", [])
 
-        print(f"Scraping {name}...")
+        logger.info(f"Scraping {name}...")
 
         for product in products:
             product_url = base_url + product["url"]
@@ -209,9 +212,9 @@ class PriceScraper:
             results.append(result)
 
             if result["success"]:
-                print(f"  [OK] {product['id']}: ${result['price']:.2f}")
+                logger.info(f"{product['id']}: ${result['price']:.2f}")
             else:
-                print(f"  [FAIL] {product['id']}: {result['error']}")
+                logger.error(f"{product['id']}: {result['error']}")
 
             # Random delay between products
             random_delay()
@@ -233,7 +236,7 @@ class PriceScraper:
 
         for competitor in competitors:
             if not competitor.get("enabled", True):
-                print(f"Skipping disabled competitor: {competitor['name']}")
+                logger.debug(f"Skipping disabled competitor: {competitor['name']}")
                 continue
 
             results = self.scrape_competitor(competitor)
@@ -262,7 +265,7 @@ def main():
 
     if args.test:
         if not args.url:
-            print("Error: --url required with --test", file=sys.stderr)
+            logger.error("Error: --url required with --test")
             return 1
 
         result = scraper.scrape_product(
@@ -271,13 +274,13 @@ def main():
             competitor_name="Test"
         )
 
-        print(f"\nResult:")
-        print(f"  URL: {result['url']}")
-        print(f"  Success: {result['success']}")
-        print(f"  Price: {result['price']}")
-        print(f"  Raw: {result.get('price_raw', 'N/A')}")
+        logger.info(f"Result:")
+        logger.info(f"  URL: {result['url']}")
+        logger.info(f"  Success: {result['success']}")
+        logger.info(f"  Price: {result['price']}")
+        logger.info(f"  Raw: {result.get('price_raw', 'N/A')}")
         if result['error']:
-            print(f"  Error: {result['error']}")
+            logger.error(f"  Error: {result['error']}")
 
         return 0 if result['success'] else 1
 
@@ -285,7 +288,7 @@ def main():
         results = scraper.scrape_all()
 
         success_count = sum(1 for r in results if r["success"])
-        print(f"\nSummary: {success_count}/{len(results)} successful")
+        logger.info(f"Summary: {success_count}/{len(results)} successful")
 
         return 0
 

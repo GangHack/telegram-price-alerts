@@ -16,6 +16,9 @@ from typing import Optional
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from config.settings import DATABASE_PATH
+from execution.logger import get_logger
+
+logger = get_logger()
 
 
 def get_connection() -> sqlite3.Connection:
@@ -214,23 +217,23 @@ def main():
 
     if args.init:
         init_database()
-        print(f"Database initialized at: {DATABASE_PATH}")
+        logger.info(f"Database initialized at: {DATABASE_PATH}")
         return 0
 
     if args.history:
         if not args.product:
-            print("Error: --product required with --history", file=sys.stderr)
+            logger.error("Error: --product required with --history")
             return 1
 
         history = get_price_history(args.product, args.limit)
         if not history:
-            print(f"No history found for product: {args.product}")
+            logger.info(f"No history found for product: {args.product}")
             return 0
 
-        print(f"\nPrice history for: {args.product}")
-        print("-" * 60)
+        logger.info(f"Price history for: {args.product}")
+        logger.info("-" * 60)
         for record in history:
-            print(f"  {record['scraped_at']} | {record['competitor_name']} | ${record['price']:.2f}")
+            logger.info(f"  {record['scraped_at']} | {record['competitor_name']} | ${record['price']:.2f}")
 
         return 0
 

@@ -1,5 +1,9 @@
 # Competitor Price Monitor
 
+![Python Version](https://img.shields.io/badge/python-3.12+-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Status](https://img.shields.io/badge/status-active-success.svg)
+
 Automated price monitoring system that scrapes competitor websites and sends real-time Telegram alerts when prices change.
 
 ## Problem Solved
@@ -36,14 +40,11 @@ The system runs on a scheduled timer and follows this workflow:
 
 ## Quick Start
 
-### 1. Install Dependencies
+### Option A: Docker (Recommended)
 
-```bash
-pip install -r requirements.txt
-playwright install chromium
-```
+The easiest way to run the price monitor is with Docker.
 
-### 2. Configure Environment
+#### 1. Configure Environment
 
 ```bash
 cp .env.example .env
@@ -53,7 +54,46 @@ Add your Telegram credentials to `.env`:
 - `TELEGRAM_BOT_TOKEN` - Get from @BotFather
 - `TELEGRAM_CHAT_ID` - Get from /getUpdates API
 
-### 3. Configure Competitors
+#### 2. Configure Competitors
+
+Edit `config/competitors.yaml` with your target competitors and products.
+
+#### 3. Run with Docker Compose
+
+```bash
+# Run in daemon mode (continuous monitoring)
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop the service
+docker-compose down
+
+# Run once (for testing)
+docker-compose --profile test run price-monitor-once
+```
+
+### Option B: Manual Installation
+
+#### 1. Install Dependencies
+
+```bash
+pip install -r requirements.txt
+playwright install chromium
+```
+
+#### 2. Configure Environment
+
+```bash
+cp .env.example .env
+```
+
+Add your Telegram credentials to `.env`:
+- `TELEGRAM_BOT_TOKEN` - Get from @BotFather
+- `TELEGRAM_CHAT_ID` - Get from /getUpdates API
+
+#### 3. Configure Competitors
 
 Edit `config/competitors.yaml`:
 
@@ -69,7 +109,7 @@ competitors:
           name: "h1.title"
 ```
 
-### 4. Run
+#### 4. Run
 
 ```bash
 # Single scrape
@@ -115,6 +155,44 @@ price-monitor/
 | `python -m execution.scraper --test --url URL --selector SEL` | Test single URL |
 | `python -m execution.telegram --test "message"` | Test Telegram connection |
 | `python -m execution.storage --history --product ID` | View price history |
+
+## Logging
+
+The application uses a user-friendly logging system with:
+- **Colorful console output** - Easy-to-read status messages with icons
+- **File logging** - Detailed logs saved to `logs/` directory
+- **Daily log rotation** - Logs organized by date
+
+Log levels:
+- ✓ **INFO** - Normal operations and status updates
+- ⚠ **WARNING** - Non-critical issues
+- ✗ **ERROR** - Failures and exceptions
+- 🔍 **DEBUG** - Detailed debugging information
+
+## Docker Deployment
+
+### Building the Image
+
+```bash
+docker build -t price-monitor .
+```
+
+### Running the Container
+
+```bash
+# Run once
+docker run --env-file .env -v $(pwd)/data:/app/data price-monitor
+
+# Run in daemon mode
+docker run -d --env-file .env -v $(pwd)/data:/app/data \
+  price-monitor python -m execution.scheduler --daemon
+```
+
+### Environment Variables
+
+Required in `.env` file:
+- `TELEGRAM_BOT_TOKEN` - Your Telegram bot token
+- `TELEGRAM_CHAT_ID` - Your Telegram chat ID
 
 ## Adding a New Competitor
 
