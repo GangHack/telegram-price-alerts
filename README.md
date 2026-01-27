@@ -24,28 +24,15 @@ E-commerce businesses need to track competitor prices but manual checking is slo
 | Telegram Bot API | Real-time notifications |
 | YAML | Configuration management |
 
-## How It Works
+## Architecture
 
-```
-Scheduled Trigger (every N hours)
-         |
-         v
-+------------------+     +------------------+     +------------------+
-|   1. SCRAPE      | --> |   2. COMPARE     | --> |   3. ALERT       |
-|                  |     |                  |     |                  |
-|  Visit each URL  |     |  Check against   |     |  Send Telegram   |
-|  Extract price   |     |  last known      |     |  notification    |
-|  Random delays   |     |  price in DB     |     |  if changed      |
-+------------------+     +------------------+     +------------------+
-                                  |
-                                  v
-                         +------------------+
-                         |   4. STORE       |
-                         |                  |
-                         |  Save to SQLite  |
-                         |  for history     |
-                         +------------------+
-```
+![System Architecture](architecture-diagram.png)
+
+The system runs on a scheduled timer and follows this workflow:
+1. **Scrape** - Visit competitor URLs and extract prices using Playwright
+2. **Compare** - Check new prices against database history
+3. **Alert** - Send Telegram notification if price changed
+4. **Store** - Save new price record to SQLite for trend analysis
 
 ## Quick Start
 
