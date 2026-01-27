@@ -1,0 +1,43 @@
+# Competitor Price Monitor Configuration
+# Using demo site for testing (no anti-bot protection)
+
+competitors:
+  - name: "BooksToScrape"
+    base_url: "https://books.toscrape.com"
+    enabled: true
+    products:
+      - id: "book-1"
+        url: "/catalogue/a-light-in-the-attic_1000/index.html"
+        selectors:
+          price: ".price_color"
+          name: "h1"
+          stock: ".availability"
+
+      - id: "book-2"
+        url: "/catalogue/tipping-the-velvet_999/index.html"
+        selectors:
+          price: ".price_color"
+          name: "h1"
+          stock: ".availability"
+
+      - id: "book-3"
+        url: "/catalogue/soumission_998/index.html"
+        selectors:
+          price: ".price_color"
+          name: "h1"
+          stock: ".availability"
+
+# Alert configuration
+alerts:
+  price_change_threshold: 0
+  notify_on_new_product: true
+  notify_on_stock_change: true
+  batch_alerts: true
+
+# Scraping settings
+scraping:
+  delay_min_seconds: 1
+  delay_max_seconds: 2
+  timeout_ms: 15000
+  headless: true
+  retry_attempts: 2

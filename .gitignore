@@ -1,0 +1,48 @@
+# ===========================================
+# Git Ignore - 3-Layer Architecture
+# ===========================================
+
+# --- Secrets & Credentials ---
+.env
+credentials.json
+token.json
+*.pem
+*.key
+
+# --- Intermediate Files ---
+.tmp/
+
+# --- Database ---
+data/*.db
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+env/
+.eggs/
+*.egg-info/
+dist/
+build/
+
+# --- Node ---
+node_modules/
+npm-debug.log*
+
+# --- IDE ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+# --- Claude/AI ---
+.claude/
